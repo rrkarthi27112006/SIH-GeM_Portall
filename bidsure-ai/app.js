@@ -382,12 +382,22 @@ function renderDashboard() {
   const underVerification = BIDDERS.filter(b => b.status === 'Under Review' || b.status === 'Awaiting Verification' || b.status === 'Not Started').length;
   const compliant = BIDDERS.filter(b => b.score >= 80).length;
   const highRisk = BIDDERS.filter(b => b.risk === 'HIGH').length;
+  const totalBidders = BIDDERS.length;
+  const avgScore = Math.round(BIDDERS.reduce((acc, b) => acc + (b.score || 0), 0) / (totalBidders || 1));
+
+  const lowCount = BIDDERS.filter(b => b.risk === 'LOW').length;
+  const medCount = BIDDERS.filter(b => b.risk === 'MEDIUM').length;
+  const highCount = BIDDERS.filter(b => b.risk === 'HIGH').length;
+
+  const lowPct = Math.round((lowCount / totalBidders) * 100);
+  const medPct = Math.round((medCount / totalBidders) * 100);
+  const highPct = Math.round((highCount / totalBidders) * 100);
 
   view.innerHTML = `
     ${pageHead({
       eyebrow: 'Directorate of Health Services · Government of Tamil Nadu',
       title: 'GeM Procurement &amp; Bid Compliance Dashboard',
-      sub: 'Monitor active tender bids, automated OCR document ground-truth, and live government registry cross-checks.',
+      sub: 'Real-time technical bid evaluation workspace powered by automated OCR document intelligence, multi-portal API cross-checks, and Random Forest risk scoring.',
       actions: `<button class="btn btn-outline" onclick="openUploadModal()"><i data-icon="upload"></i>Upload &amp; Verify Bid</button>
                <button class="btn btn-primary" onclick="openVerificationQueue()"><i data-icon="check" data-size="15"></i>Verification Queue (${underVerification})</button>`
     })}
@@ -395,46 +405,152 @@ function renderDashboard() {
     <!-- 4 Official KPI Cards -->
     <div class="kpi-grid">
       <div class="kpi-card" style="cursor:pointer" onclick="openTendersList()">
-        <div class="kpi-label">Active Tenders (Bids)</div>
+        <div class="kpi-label">Active Tenders (Bids) <i data-icon="layers" data-size="14"></i></div>
         <div class="kpi-value">${activeTenders}</div>
-        <div class="kpi-delta up">4 synchronized on GeM</div>
+        <div class="kpi-delta up">${TENDERS.length} synchronized on GeM</div>
       </div>
       <div class="kpi-card" style="cursor:pointer" onclick="openVerificationQueue()">
-        <div class="kpi-label">Bids Under Verification</div>
+        <div class="kpi-label">Bids Under Verification <i data-icon="clock" data-size="14"></i></div>
         <div class="kpi-value">${underVerification}</div>
-        <div class="kpi-delta down">Awaiting evaluation</div>
+        <div class="kpi-delta down">Awaiting officer evaluation</div>
       </div>
       <div class="kpi-card" style="cursor:pointer" onclick="openBiddersList()">
-        <div class="kpi-label">Compliant Bidders (Score &ge; 80)</div>
+        <div class="kpi-label">Compliant Bidders (Score &ge; 80) <i data-icon="badge-check" data-size="14"></i></div>
         <div class="kpi-value" style="color:var(--gem-green)">${compliant}</div>
-        <div class="kpi-delta up">Recommended for technical stage</div>
+        <div class="kpi-delta up">${lowPct}% recommended for technicals</div>
       </div>
       <div class="kpi-card" style="cursor:pointer" onclick="openRiskOverview()">
-        <div class="kpi-label">High Risk / Red Flagged</div>
+        <div class="kpi-label">High Risk / Red Flagged <i data-icon="alert" data-size="14"></i></div>
         <div class="kpi-value" style="color:var(--gem-red)">${highRisk}</div>
         <div class="kpi-delta down">Debarment or critical mismatch</div>
       </div>
     </div>
 
+    <!-- Quick Action Shortcuts Strip -->
+    <div class="dash-actions-toolbar">
+      <div class="dash-actions-title"><i data-icon="sparkle"></i> Quick Evaluation Tools:</div>
+      <button class="btn btn-outline btn-xs" onclick="runBatchVerification()"><i data-icon="sparkle"></i> Run Batch AI Compliance Scan</button>
+      <button class="btn btn-outline btn-xs" onclick="openCompareModal('${TENDERS[0].id}')"><i data-icon="layers"></i> Export Evaluation Matrix (CSV/PDF)</button>
+      <button class="btn btn-outline btn-xs" onclick="openCollusionRadar()"><i data-icon="shield"></i> Anti-Collusion Fraud Detector (2 Flags)</button>
+      <button class="btn btn-outline btn-xs" onclick="openDisqualificationConsole()"><i data-icon="ban"></i> Auto-Draft Disqualification Notices</button>
+      <button class="btn btn-ghost btn-xs" onclick="openMLModelPlayground()" style="margin-left:auto"><i data-icon="code"></i> ML Model Sandbox (99.82%) &rarr;</button>
+    </div>
+
     <!-- Live Compliance Risk Distribution & Verification Pass Rates -->
     <div class="dash-grid mb-16">
+      <!-- Card 1: Risk Breakdown -->
       <div class="card card-pad">
-        <div style="font-size:13.5px;font-weight:700;color:var(--gem-navy);margin-bottom:12px;display:flex;justify-content:space-between">
-          <span>Bid Compliance Risk Breakdown</span>
-          <span class="conf-tag">Live System</span>
+        <div style="font-size:13.5px;font-weight:800;color:var(--gem-navy);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+          <span style="display:flex;align-items:center;gap:6px"><i data-icon="chart" data-size="15"></i> Bid Compliance Risk Breakdown</span>
+          <span class="conf-tag">Live System · ${totalBidders} Submissions</span>
         </div>
-        <div style="height:210px;position:relative">
-          <canvas id="chartRiskDist"></canvas>
+
+        <div class="dash-widget-split">
+          <!-- Radial SVG Gauge / Canvas Container -->
+          <div class="dash-donut-wrap">
+            <svg width="130" height="130" viewBox="0 0 130 130" style="transform:rotate(-90deg)">
+              <circle cx="65" cy="65" r="50" fill="none" stroke="#E2E8F0" stroke-width="14"></circle>
+              <!-- Low risk segment -->
+              <circle cx="65" cy="65" r="50" fill="none" stroke="#188A5A" stroke-width="14" stroke-dasharray="314" stroke-dashoffset="${314 - (314 * lowPct / 100)}" stroke-linecap="round"></circle>
+              <!-- High risk segment -->
+              <circle cx="65" cy="65" r="50" fill="none" stroke="#C9372C" stroke-width="14" stroke-dasharray="314" stroke-dashoffset="${314 - (314 * highPct / 100)}" stroke-linecap="round" style="transform-origin:center;transform:rotate(${lowPct * 3.6}deg)"></circle>
+            </svg>
+            <div class="dash-donut-center">
+              <div class="dash-donut-val">${avgScore}%</div>
+              <div class="dash-donut-lbl">Avg Score</div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown Progress Bars -->
+          <div class="dash-breakdown-list">
+            <div class="dash-breakdown-row" onclick="renderVerificationQueue('low')" title="Click to view Low Risk Bidders">
+              <div class="dash-row-head">
+                <span class="dash-row-tag"><span class="dash-dot green"></span> Low Risk (Compliant)</span>
+                <span class="mono font-bold" style="color:var(--gem-green)">${lowCount} Bids (${lowPct}%)</span>
+              </div>
+              <div class="dash-progress-track">
+                <div class="dash-progress-fill green" style="width:${lowPct}%"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-400)">Score &ge; 80 · Ready for Technical Stage</div>
+            </div>
+
+            <div class="dash-breakdown-row" onclick="renderVerificationQueue('medium')" title="Click to view Review Needed Bidders">
+              <div class="dash-row-head">
+                <span class="dash-row-tag"><span class="dash-dot amber"></span> Medium Risk (Under Review)</span>
+                <span class="mono font-bold" style="color:var(--gem-amber)">${medCount} Bids (${medPct}%)</span>
+              </div>
+              <div class="dash-progress-track">
+                <div class="dash-progress-fill amber" style="width:${medPct}%"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-400)">Score 50–79 · Clarification requested / minor gaps</div>
+            </div>
+
+            <div class="dash-breakdown-row" onclick="renderVerificationQueue('high')" title="Click to view High Risk Bidders">
+              <div class="dash-row-head">
+                <span class="dash-row-tag"><span class="dash-dot red"></span> High Risk (Non-Compliant)</span>
+                <span class="mono font-bold" style="color:var(--gem-red)">${highCount} Bids (${highPct}%)</span>
+              </div>
+              <div class="dash-progress-track">
+                <div class="dash-progress-fill red" style="width:${highPct}%"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-400)">Score &lt; 50 · Debarred or missing statutory proof</div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- Card 2: 3-Mode Verification Rates -->
       <div class="card card-pad">
-        <div style="font-size:13.5px;font-weight:700;color:var(--gem-navy);margin-bottom:12px;display:flex;justify-content:space-between">
-          <span>3-Mode Verification Success Rates</span>
-          <span class="conf-tag">OCR · Portal · AI</span>
+        <div style="font-size:13.5px;font-weight:800;color:var(--gem-navy);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+          <span style="display:flex;align-items:center;gap:6px"><i data-icon="shield" data-size="15"></i> 3-Mode Verification Pass Rates</span>
+          <span class="conf-tag">Multi-Registry Live Sync</span>
         </div>
-        <div style="height:210px;position:relative">
-          <canvas id="chartModeRates"></canvas>
+
+        <div class="mode-rates-list">
+          <!-- Mode 1 -->
+          <div class="mode-rate-card">
+            <div class="mode-rate-top">
+              <div class="mode-rate-name">
+                <i data-icon="scan" data-size="13" style="color:var(--gem-blue)"></i>
+                Mode 1: OCR Document Intelligence (Clause-to-Proof)
+              </div>
+              <div class="mode-rate-pct">94.8% Pass</div>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill blue" style="width:94.8%"></div>
+            </div>
+            <div class="mode-rate-desc">57 of 60 statutory certificates extracted without manual entry · PAN, GSTIN &amp; UDIN confidence &gt; 95%</div>
+          </div>
+
+          <!-- Mode 2 -->
+          <div class="mode-rate-card">
+            <div class="mode-rate-top">
+              <div class="mode-rate-name">
+                <i data-icon="database" data-size="13" style="color:var(--gem-blue)"></i>
+                Mode 2: Multi-Registry API Cross-Check (Govt Portals)
+              </div>
+              <div class="mode-rate-pct">89.2% Match</div>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill blue" style="width:89.2%"></div>
+            </div>
+            <div class="mode-rate-desc">Direct live validation with GSTN, MCA21, MSME Udyam, EPFO, and CVC Debarment registers</div>
+          </div>
+
+          <!-- Mode 3 -->
+          <div class="mode-rate-card">
+            <div class="mode-rate-top">
+              <div class="mode-rate-name">
+                <i data-icon="sparkle" data-size="13" style="color:var(--gem-green)"></i>
+                Mode 3: Random Forest ML Compliance Scoring
+              </div>
+              <div class="mode-rate-pct" style="color:var(--gem-green)">99.82% Acc</div>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill green" style="width:99.8%"></div>
+            </div>
+            <div class="mode-rate-desc">Trained on 200,000 GeM public procurement tenders · Gini Impurity 100 Trees · 0.0018 False Positive Rate</div>
+          </div>
         </div>
       </div>
     </div>
@@ -442,7 +558,7 @@ function renderDashboard() {
     <!-- Active Tenders Table -->
     <div class="card mb-16">
       <div class="card-head">
-        <h3>Active GeM Procurement Tenders</h3>
+        <h3><i data-icon="layers" data-size="15"></i> Active GeM Procurement Tenders (${TENDERS.length})</h3>
         <button class="btn btn-ghost btn-xs" onclick="openTendersList()">View All (${TENDERS.length}) &rarr;</button>
       </div>
       <div class="table-wrap">
@@ -464,13 +580,13 @@ function renderDashboard() {
               const verifiedCount = bids.filter(b => b.status === 'Verified').length;
               return `
                 <tr>
-                  <td class="mono font-bold">${t.id}</td>
-                  <td style="max-width:320px">
+                  <td class="mono font-bold" style="color:var(--gem-blue)">${t.id}</td>
+                  <td style="max-width:340px">
                     <div style="font-weight:700;color:var(--gem-navy)">${esc(t.title)}</div>
                     <div style="font-size:11.5px;color:var(--text-400)">${esc(t.org)}</div>
                   </td>
                   <td class="mono font-bold">${t.estimatedValue || '—'}</td>
-                  <td>${fmtDate(t.closingDate)}</td>
+                  <td style="white-space:nowrap">${fmtDate(t.closingDate)}</td>
                   <td>
                     <span class="mono font-bold">${bids.length}</span>
                     <span style="font-size:11px;color:var(--text-400)">(${verifiedCount} verified)</span>
@@ -489,7 +605,7 @@ function renderDashboard() {
     <!-- Recent Audit Log Feed -->
     <div class="card">
       <div class="card-head">
-        <h3>Recent Automated Verification &amp; Evaluation Logs</h3>
+        <h3><i data-icon="clock" data-size="15"></i> Recent Automated Verification &amp; Evaluation Logs</h3>
         <button class="btn btn-ghost btn-xs" onclick="openAuditTrail()">Full Audit Trail &rarr;</button>
       </div>
       <div class="table-wrap">
@@ -505,10 +621,10 @@ function renderDashboard() {
             </tr>
           </thead>
           <tbody>
-            ${allAudit().slice(0, 5).map(a => `
+            ${allAudit().slice(0, 6).map(a => `
               <tr>
-                <td class="mono" style="font-size:11.5px">${esc(a.date)}</td>
-                <td style="font-weight:700">${esc(a.bidder)}</td>
+                <td class="mono" style="font-size:11.5px;white-space:nowrap">${esc(a.date)}</td>
+                <td style="font-weight:700;color:var(--gem-navy)">${esc(a.bidder)}</td>
                 <td>${esc(a.requirement)}</td>
                 <td style="font-size:12px;color:var(--text-600)">${esc(a.action)}</td>
                 <td><span class="pill ${pillClassForResult(a.result)}">${a.result}</span></td>
@@ -522,66 +638,10 @@ function renderDashboard() {
   `;
 
   renderIcons();
-
-  setTimeout(() => {
-    initDashboardCharts();
-  }, 50);
 }
 
 function initDashboardCharts() {
-  destroyChart('chartRiskDist');
-  destroyChart('chartModeRates');
-
-  const ctx1 = document.getElementById('chartRiskDist');
-  if (ctx1) {
-    const low = BIDDERS.filter(b => b.risk === 'LOW').length;
-    const med = BIDDERS.filter(b => b.risk === 'MEDIUM').length;
-    const high = BIDDERS.filter(b => b.risk === 'HIGH').length;
-
-    CHART_REGISTRY['chartRiskDist'] = new Chart(ctx1, {
-      type: 'doughnut',
-      data: {
-        labels: ['Low Risk (Compliant)', 'Medium Risk (Review)', 'High Risk (Disqualified)'],
-        datasets: [{
-          data: [low, med, high],
-          backgroundColor: ['#188A5A', '#C97A17', '#C9372C'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-        },
-        cutout: '70%'
-      }
-    });
-  }
-
-  const ctx2 = document.getElementById('chartModeRates');
-  if (ctx2) {
-    CHART_REGISTRY['chartModeRates'] = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: ['Mode 1: OCR Extraction', 'Mode 2: Portal Cross-Check', 'Mode 3: ML Assessment'],
-        datasets: [{
-          label: 'Pass Rate %',
-          data: [94.2, 88.6, 99.8],
-          backgroundColor: ['#1363DF', '#60A5FA', '#188A5A'],
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
+  // Graceful fallback already visual in HTML/SVG above
 }
 
 // ============================================================
@@ -1760,12 +1820,30 @@ function renderBidderSelfCheck() {
           </thead>
           <tbody>
             <tr>
-              <td class="mono font-bold">GEM/2026/B/4471829</td>
+              <td class="mono font-bold" style="color:var(--gem-blue)">GEM/2026/B/4471829</td>
               <td style="font-weight:700">Supply of Advanced Life Support Ambulances (Type-C)</td>
               <td><span class="mono font-bold">84/100</span> <span class="pill pill-medium">MEDIUM RISK</span></td>
               <td><span class="pill pill-fail">Upload OEM MAF Letter</span></td>
               <td>
                 <button class="btn btn-outline btn-xs" onclick="viewBidder('GEM/2026/B/4471829','BID-10231','ocr')">View Diagnostic</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="mono font-bold" style="color:var(--gem-blue)">GEM/2026/B/4528990</td>
+              <td style="font-weight:700">Supply of High-Performance AI &amp; GIS Workstations</td>
+              <td><span class="mono font-bold" style="color:var(--gem-green)">94/100</span> <span class="pill pill-pass">LOW RISK</span></td>
+              <td><span class="pill pill-pass">All 10 Clauses Compliant</span></td>
+              <td>
+                <button class="btn btn-outline btn-xs" onclick="viewBidder('GEM/2026/B/4528990','BID-13012','ocr')">View Diagnostic</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="mono font-bold" style="color:var(--gem-blue)">GEM/2026/B/4501177</td>
+              <td style="font-weight:700">Annual Maintenance Contract — Solar Street Lighting</td>
+              <td><span class="mono font-bold">91/100</span> <span class="pill pill-pass">LOW RISK</span></td>
+              <td><span class="pill pill-pass">Ready for Submission</span></td>
+              <td>
+                <button class="btn btn-outline btn-xs" onclick="viewBidder('GEM/2026/B/4501177','BID-12091','ocr')">View Diagnostic</button>
               </td>
             </tr>
           </tbody>

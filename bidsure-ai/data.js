@@ -57,6 +57,22 @@ const TENDERS = [
     requirements:['gst','pan','udyam','itr','epfo','turnover','blacklist'],
     minTurnover:'₹1.50 Cr (avg. last 3 yrs)', minExperience:'—',
   },
+  {
+    id:'GEM/2026/B/4528990', title:'Supply of High-Performance AI & GIS Workstations', org:'Space Applications Centre, ISRO',
+    category:'IT Hardware', closingDate:'2026-09-29', status:'Verification In Progress',
+    estimatedValue:'₹14.50 Crores', emdAmount:'₹29.00 Lakhs (Exempt for MSME)',
+    description:'Procurement of 500 Enterprise AI GPU Workstations (NVIDIA RTX 6000 Ada, 128GB ECC RAM, 5-Yr Onsite OEM Support) for satellite imagery processing.',
+    requirements:['gst','pan','udyam','itr','oem','mii','epfo','experience','turnover','blacklist'],
+    minTurnover:'₹7.50 Cr (avg. last 3 yrs)', minExperience:'2 similar HPC/Workstation contracts ≥ ₹2.5 Cr in last 3 yrs',
+  },
+  {
+    id:'GEM/2026/B/4531044', title:'Automated Pathology & Diagnostic Equipment', org:'All India Institute of Medical Sciences (AIIMS)',
+    category:'Medical Equipment', closingDate:'2026-09-25', status:'Verification In Progress',
+    estimatedValue:'₹22.80 Crores', emdAmount:'₹45.60 Lakhs (Exempt for MSME)',
+    description:'Turnkey procurement, installation and 5-year Comprehensive AMC of high-throughput clinical biochemistry and hematology analyzers.',
+    requirements:['gst','pan','udyam','itr','oem','mii','epfo','experience','turnover','blacklist'],
+    minTurnover:'₹12.00 Cr (avg. last 3 yrs)', minExperience:'3 similar turnkey hospital lab installations ≥ ₹4.0 Cr in last 5 yrs',
+  },
 ];
 
 // ---------- 3. BIDDERS DATASET (10 REALISTIC BIDDERS) ----------
@@ -371,6 +387,150 @@ const BIDDERS = [
       req('itr','PASS','ITR_2023-25.pdf','3 years filed continuously.',91),
       req('turnover','REVIEW','Financials.pdf','Turnover just below threshold in FY 2023-24, recovered in FY 2024-25.',55),
       req('blacklist','CLEAR','GeM Debarment List','No blacklisting record found.',98),
+    ]},
+
+  // --- ISRO Workstation tender bidders ---
+  { id:'BID-13012', tenderId:'GEM/2026/B/4528990', company:'Quantum Edge Computing Systems Pvt. Ltd.', gstin:'24AABCQ4412R1Z8', pan:'AABCQ4412R', udyam:'UDYAM-GJ-01-0008812', cin:'U72900GJ2014PTC081912',
+    score:94, risk:'LOW', status:'Verified', submittedOn:'2026-09-10', bidPrice:'₹13.90 Cr',
+    trustId:'TP-IND-GJ-2026-5510', trustScore:95, establishedYear:2014,
+    address:'Infocity Tower 2, Gandhinagar, Gujarat - 382007',
+    category:'Medium Enterprise (MSME)', authCapital:'₹8.00 Crores', paidUpCapital:'₹5.20 Crores',
+    directors:[
+      { name:'Jignesh Patel', din:'06112940', designation:'Managing Director', status:'ACTIVE / VERIFIED' },
+      { name:'Bhavna Patel', din:'07221045', designation:'Technical Director', status:'ACTIVE / VERIFIED' }
+    ],
+    turnoverHistory:[
+      { fy:'FY 2023-24', amount:'₹11.20 Cr', status:'Audited & Filed' },
+      { fy:'FY 2024-25', amount:'₹13.40 Cr', status:'Audited & Filed' },
+      { fy:'FY 2025-26', amount:'₹14.10 Cr', status:'Audited & Filed' }
+    ],
+    gemPerformance:{ totalContracts:16, totalValue:'₹44.80 Cr', onTimeDelivery:'98.8%', rating:4.9, activeContracts:2 },
+    pastContracts:[
+      { orderNo:'GEMC-51168799401', buyer:'Physical Research Laboratory (PRL)', item:'180 HPC Compute Nodes', value:'₹5.60 Cr', year:'2024', status:'Completed / Commended' },
+      { orderNo:'GEMC-51168781204', buyer:'IIT Gandhinagar', item:'High Performance GPU Cluster', value:'₹3.80 Cr', year:'2023', status:'Completed / Satisfactory' }
+    ],
+    trustBadges:[
+      { name:'GSTN Verified', status:'ACTIVE', icon:'shield' },
+      { name:'OEM Direct Partner', status:'VERIFIED', icon:'badge-check' },
+      { name:'Class-1 MII (65%)', status:'ACTIVE', icon:'flag' },
+      { name:'Zero Debarment', status:'CLEAN', icon:'check' }
+    ],
+    results:[
+      req('gst','PASS','GST_Reg_Certificate.pdf','Active Regular Taxpayer verified via GSTN API.',99),
+      req('pan','PASS','PAN_Card.pdf','Corporate PAN valid and verified.',99),
+      req('udyam','PASS','Udyam_Registration.pdf','Active Medium Enterprise under MSME classification.',97),
+      req('itr','PASS','ITR_3Years_Acknowledged.pdf','3 years consecutive ITR verified.',96),
+      req('oem','PASS','OEM_Auth_NVIDIA_Supermicro.pdf','Direct OEM authorization letter with 5-year replacement SLA.',98),
+      req('mii','PASS','MII_LocalContent_CA.pdf','65% local assembly and testing certified by statutory CA.',95),
+      req('epfo','PASS','EPFO_Monthly_ECR.pdf','Active establishment with 84 regular employees.',96),
+      req('experience','PASS','PRL_HPC_Order.pdf','2 HPC contracts exceeding ₹2.5 Cr verified.',97),
+      req('turnover','PASS','Audited_Turnover_CA.pdf','Average turnover ₹12.9 Cr exceeds ₹7.5 Cr threshold.',98),
+      req('blacklist','CLEAR','GeM Debarment List','No debarment or CVC watchlist records found.',99),
+    ]},
+  { id:'BID-13025', tenderId:'GEM/2026/B/4528990', company:'Apex Space Innovations LLP', gstin:'29AAHCA9921B1Z4', pan:'AAHCA9921B', udyam:'UDYAM-KA-02-0004419', cin:'AAK-9921',
+    score:61, risk:'MEDIUM', status:'Under Review', submittedOn:'2026-09-12', bidPrice:'₹13.40 Cr',
+    trustId:'TP-IND-KA-2026-1142', trustScore:64, establishedYear:2020,
+    address:'Whitefield Tech Zone, Bengaluru, Karnataka - 560066',
+    category:'Small Enterprise', authCapital:'₹2.00 Crores', paidUpCapital:'₹1.20 Crores',
+    directors:[
+      { name:'Arun Nair', din:'08812940', designation:'Designated Partner', status:'ACTIVE' }
+    ],
+    turnoverHistory:[
+      { fy:'FY 2023-24', amount:'₹6.80 Cr', status:'Audited & Filed' },
+      { fy:'FY 2024-25', amount:'₹8.10 Cr', status:'Audited & Filed' },
+      { fy:'FY 2025-26', amount:'₹7.40 Cr', status:'Self-Declared' }
+    ],
+    gemPerformance:{ totalContracts:6, totalValue:'₹8.20 Cr', onTimeDelivery:'91.5%', rating:4.2, activeContracts:1 },
+    pastContracts:[
+      { orderNo:'GEMC-51168720199', buyer:'ISRO Satellite Centre', item:'50 CAD Workstations', value:'₹1.80 Cr', year:'2024', status:'Completed' }
+    ],
+    trustBadges:[
+      { name:'GSTN Active', status:'ACTIVE', icon:'shield' },
+      { name:'Small Enterprise', status:'ACTIVE', icon:'building' }
+    ],
+    results:[
+      req('gst','PASS','GST_Certificate.pdf','GSTIN active on GSTN portal.',97),
+      req('pan','PASS','PAN_Card.pdf','PAN verified.',98),
+      req('udyam','PASS','Udyam_Certificate.pdf','Valid Small Enterprise registration.',95),
+      req('itr','PASS','ITR_Returns.pdf','3 years filed.',92),
+      req('oem','REVIEW','OEM_Distributor_Letter.pdf','Authorized by Tier-2 distributor rather than Tier-1 OEM parent company.',62),
+      req('mii','REVIEW','MII_Declaration.pdf','Local content declared 48% — slightly under 50% Class-1 threshold.',54),
+      req('epfo','PASS','EPFO_ECR.pdf','Active establishment.',94),
+      req('experience','REVIEW','WorkOrders.pdf','Past contract value ₹1.8 Cr is below ₹2.5 Cr single-order threshold.',60),
+      req('turnover','PASS','Financials_CA.pdf','3-year average turnover ₹7.43 Cr meets the ₹7.5 Cr threshold with rounding.',85),
+      req('blacklist','CLEAR','GeM Debarment List','No debarment found.',99),
+    ]},
+
+  // --- AIIMS Diagnostic Equipment tender bidders ---
+  { id:'BID-14001', tenderId:'GEM/2026/B/4531044', company:'Meditech Diagnostic Instruments Ltd.', gstin:'27AABCM8812D1Z9', pan:'AABCM8812D', udyam:'UDYAM-MH-18-0002288', cin:'L33110MH2008PLC044192',
+    score:98, risk:'LOW', status:'Verified', submittedOn:'2026-09-08', bidPrice:'₹22.10 Cr',
+    trustId:'TP-IND-MH-2026-9912', trustScore:99, establishedYear:2008,
+    address:'Andheri East SEZ, Mumbai, Maharashtra - 400093',
+    category:'Large Enterprise / Listed', authCapital:'₹25.00 Crores', paidUpCapital:'₹18.50 Crores',
+    directors:[
+      { name:'Dr. Sanjeev Kapoor', din:'02118490', designation:'Chairman & MD', status:'ACTIVE / VERIFIED' },
+      { name:'Meera Kapoor', din:'03449102', designation:'Executive Director', status:'ACTIVE / VERIFIED' }
+    ],
+    turnoverHistory:[
+      { fy:'FY 2023-24', amount:'₹38.40 Cr', status:'Audited & Filed' },
+      { fy:'FY 2024-25', amount:'₹42.10 Cr', status:'Audited & Filed' },
+      { fy:'FY 2025-26', amount:'₹45.80 Cr', status:'Audited & Filed' }
+    ],
+    gemPerformance:{ totalContracts:34, totalValue:'₹128.50 Cr', onTimeDelivery:'99.6%', rating:4.95, activeContracts:4 },
+    pastContracts:[
+      { orderNo:'GEMC-51168810244', buyer:'AIIMS Jodhpur', item:'Integrated Clinical Chemistry Lab', value:'₹8.90 Cr', year:'2024', status:'Completed / Excellent' },
+      { orderNo:'GEMC-51168799102', buyer:'PGI Chandigarh', item:'Automated Hematology Line', value:'₹6.40 Cr', year:'2023', status:'Completed / Commended' }
+    ],
+    trustBadges:[
+      { name:'GSTN Verified', status:'ACTIVE', icon:'shield' },
+      { name:'NABL Accredited Lab', status:'VERIFIED', icon:'badge-check' },
+      { name:'ISO 13485 (Medical Devices)', status:'VERIFIED', icon:'check' },
+      { name:'Zero Debarment', status:'CLEAN', icon:'shield' }
+    ],
+    results:[
+      req('gst','PASS','GST_Certificate.pdf','GSTIN active and verified.',99),
+      req('pan','PASS','PAN_Card.pdf','Corporate PAN verified.',99),
+      req('udyam','PASS','Udyam_Registration.pdf','Enterprise registration valid.',98),
+      req('itr','PASS','ITR_6_Audited.pdf','3 consecutive years audited and filed.',98),
+      req('oem','PASS','OEM_Direct_MAF_Roche.pdf','Exclusive Tier-1 OEM authorization with guaranteed 10-year reagent supply.',99),
+      req('mii','PASS','MII_Certificate.pdf','56% local value addition certified by statutory auditor.',95),
+      req('epfo','PASS','EPFO_ECR.pdf','Active establishment with 240+ employees.',98),
+      req('experience','PASS','AIIMS_PastOrders.pdf','3 turnkey hospital lab contracts exceeding ₹6 Cr each.',98),
+      req('turnover','PASS','Audited_BalanceSheet.pdf','Average turnover ₹42.1 Cr far exceeds ₹12 Cr threshold.',99),
+      req('blacklist','CLEAR','GeM Debarment List','No blacklisting record found.',99),
+    ]},
+  { id:'BID-14018', tenderId:'GEM/2026/B/4531044', company:'BioGen Health Corp', gstin:'06AABCB7712E1Z2', pan:'AABCB7712E', udyam:'UDYAM-HR-02-0009941', cin:'U24232HR2021PTC099112',
+    score:42, risk:'HIGH', status:'Under Review', submittedOn:'2026-09-14', bidPrice:'₹19.80 Cr',
+    trustId:'TP-IND-HR-2026-3391', trustScore:38, establishedYear:2021,
+    address:'Udyog Vihar Phase IV, Gurugram, Haryana - 122016',
+    category:'Small Enterprise (Suspended OEM Authorization)', authCapital:'₹3.00 Crores', paidUpCapital:'₹1.50 Crores',
+    directors:[
+      { name:'Vikrant Sethi', din:'09118420', designation:'Director', status:'ACTIVE' }
+    ],
+    turnoverHistory:[
+      { fy:'FY 2023-24', amount:'₹4.10 Cr', status:'Audited' },
+      { fy:'FY 2024-25', amount:'₹5.20 Cr', status:'Audited' },
+      { fy:'FY 2025-26', amount:'₹4.80 Cr', status:'Unaudited' }
+    ],
+    gemPerformance:{ totalContracts:2, totalValue:'₹2.10 Cr', onTimeDelivery:'75.0%', rating:3.2, activeContracts:0 },
+    pastContracts:[
+      { orderNo:'GEMC-51168622109', buyer:'Civil Hospital Gurugram', item:'Diagnostic Reagents Supply', value:'₹85 Lakhs', year:'2023', status:'Delayed 45 Days' }
+    ],
+    trustBadges:[
+      { name:'GSTN Active', status:'ACTIVE', icon:'shield' },
+      { name:'OEM MAF Status', status:'DISPUTED', icon:'alert' }
+    ],
+    results:[
+      req('gst','PASS','GST_Certificate.pdf','GSTIN active on GSTN portal.',96),
+      req('pan','PASS','PAN_Card.pdf','PAN verified.',97),
+      req('udyam','PASS','Udyam_Certificate.pdf','Valid registration.',94),
+      req('itr','REVIEW','ITR_Returns.pdf','Only 2 years of returns submitted.',56),
+      req('oem','FAIL','OEM_MAF_Revoked.pdf','Submitted OEM authorization letter found revoked by principal manufacturer on 2026-08-15.',92),
+      req('mii','FAIL','—','No Make in India local content certificate enclosed.',0),
+      req('epfo','REVIEW','EPFO_ECR.pdf','ECR filing irregular for 3 months in 2025.',52),
+      req('experience','FAIL','WorkOrders.pdf','No completed turnkey diagnostic equipment orders above ₹4.0 Cr found.',86),
+      req('turnover','FAIL','Financials.pdf','Average turnover ₹4.7 Cr fails to meet ₹12 Cr requirement.',90),
+      req('blacklist','CLEAR','GeM Debarment List','No direct blacklisting, but high risk flagged due to revoked MAF.',82),
     ]},
 ];
 
