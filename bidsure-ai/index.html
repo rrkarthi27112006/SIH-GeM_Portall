@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Government e-Marketplace (GeM) — Integrated Bid Compliance Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ OFFICIAL GOV TOP UTILITY BAR ============ -->
+<div class="gov-topbar">
+  <div class="gov-topbar-inner">
+    <div class="gov-topbar-left">
+      <span class="gov-flag-emblem">🇮🇳</span>
+      <span class="gov-title-en">GOVERNMENT OF INDIA</span>
+      <span class="gov-sep">|</span>
+      <span class="gov-title-hi">भारत सरकार</span>
+      <span class="gov-sep">|</span>
+      <span class="gov-portal-tag">GeM 4.0 Procurement Portal</span>
+    </div>
+    <div class="gov-topbar-right">
+      <span class="gov-link">Skip to Main Content</span>
+      <span class="gov-sep">|</span>
+      <span class="gov-link" onclick="toast('Helpdesk Toll Free: 1800-419-3436 (9 AM - 6 PM)')">Helpdesk: 1800-419-3436</span>
+      <span class="gov-sep">|</span>
+      <span class="gov-lang">English / हिन्दी</span>
+      <span class="gov-sep">|</span>
+      <div class="gov-font-ctrl">
+        <button onclick="document.body.style.fontSize='12.5px'">A-</button>
+        <button onclick="document.body.style.fontSize='13.5px'">A</button>
+        <button onclick="document.body.style.fontSize='15px'">A+</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LOGIN SCREEN (OFFICIAL GEM LOGIN) ============ -->
+<div id="login-screen" class="gem-login-screen">
+  <!-- Login Header -->
+  <header class="gem-login-header">
+    <div class="gem-header-container">
+      <div class="gem-logo-group">
+        <div class="gem-national-emblem">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0B2545" stroke-width="1.8">
+            <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z"/>
+            <path d="M12 6v12M8 10h8M9 14h6"/>
+          </svg>
+        </div>
+        <div class="gem-logo-text">
+          <div class="gem-brand-main">GeM</div>
+          <div class="gem-brand-sub">Government e-Marketplace</div>
+          <div class="gem-brand-ministry">Ministry of Commerce &amp; Industry</div>
+        </div>
+      </div>
+
+      <div class="gem-header-support">
+        <div class="support-item">
+          <div class="support-label">National Toll-Free</div>
+          <div class="support-value">1800-102-3436 / 1800-419-3436</div>
+        </div>
+        <div class="support-item">
+          <div class="support-label">Portal Status</div>
+          <div class="support-value" style="color:#188A5A">● Live &amp; Connected</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Main Content -->
+  <main class="gem-login-body">
+    <div class="gem-login-container">
+      <!-- Left Info Banner -->
+      <div class="gem-login-info">
+        <div class="gem-info-pill">Integrated AI Compliance Platform</div>
+        <h1 class="gem-info-title">Automated Bid Compliance &amp; Verification System</h1>
+        <p class="gem-info-desc">
+          Accelerating technical bid evaluation across GeM tenders with real-time OCR document verification, multi-portal registry cross-checks (GSTN, PAN, Udyam, EPFO, Debarment), and predictive compliance risk assessment.
+        </p>
+
+        <div class="gem-feature-list">
+          <div class="gem-feature-item">
+            <div class="gem-feat-icon">✓</div>
+            <div>
+              <div class="gem-feat-title">Clause-to-Proof Verification</div>
+              <div class="gem-feat-sub">Automated mapping of tender eligibility criteria to bidder submitted proof.</div>
+            </div>
+          </div>
+          <div class="gem-feature-item">
+            <div class="gem-feat-icon">✓</div>
+            <div>
+              <div class="gem-feat-title">Multi-Portal Registry Validation</div>
+              <div class="gem-feat-sub">Direct validation with GSTN, Income Tax e-Filing, MSME Udyam, and EPFO.</div>
+            </div>
+          </div>
+          <div class="gem-feature-item">
+            <div class="gem-feat-icon">✓</div>
+            <div>
+              <div class="gem-feat-title">Digital Bidder Trust Passport</div>
+              <div class="gem-feat-sub">Standardized reusable compliance credential with tamper-evident audit trail.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Login Card with Separate Buyer vs Seller Tabs -->
+      <div class="gem-login-card">
+        <div class="gem-login-tabs">
+          <button type="button" class="gem-tab-btn active" id="tabBuyer" onclick="switchLoginTab('officer')">
+            🏛️ Buyer Login <span class="tab-sub">(Govt Officer)</span>
+          </button>
+          <button type="button" class="gem-tab-btn" id="tabSeller" onclick="switchLoginTab('bidder')">
+            🏢 Seller Login <span class="tab-sub">(Bidder / Vendor)</span>
+          </button>
+        </div>
+
+        <form id="login-form" class="gem-login-form">
+          <input type="hidden" id="login-role" value="officer">
+
+          <div id="loginNoticeBox" class="login-notice-box">
+            <b>Government Buyer Console:</b> For Ministry/Department Procurement Officers evaluating tenders and bids.
+          </div>
+
+          <label class="field">
+            <span id="loginIdLabel">GeM Buyer User ID / Official Email</span>
+            <input type="text" id="login-id" placeholder="employee@dept.gov.in" value="p.sharma@dept.gov.in" required>
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="login-pass" placeholder="••••••••" value="••••••••" required>
+          </label>
+
+          <div class="field">
+            <span>Security Verification (Captcha)</span>
+            <div class="captcha-row">
+              <div class="captcha-code" id="captchaDisplay">7 K 9 B 2</div>
+              <button type="button" class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh Captcha">↻</button>
+              <input type="text" id="login-captcha" placeholder="Enter Captcha" value="7K9B2" required style="flex:1">
+            </div>
+          </div>
+
+          <div class="login-row">
+            <label class="checkbox"><input type="checkbox" checked> Remember User ID</label>
+            <a href="#" onclick="toast('Password reset link sent to registered email');return false;">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-gem-primary">Sign In to Console</button>
+
+          <div class="gem-login-footer">
+            <span>Need Assistance? <a href="#" onclick="toast('Call GeM Helpdesk: 1800-419-3436');return false;">GeM Helpdesk &amp; FAQs</a></span>
+            <div class="security-stamp">🔒 256-Bit SSL Encrypted Govt Portal</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ APP SHELL (POST-LOGIN GOVERNMENT CONSOLE) ============ -->
+<div id="app-shell" class="gem-app-shell hidden">
+  <!-- Government Primary Navigation Header -->
+  <header class="gem-main-header">
+    <div class="gem-main-header-top">
+      <div class="gem-header-left">
+        <div class="gem-logo-group">
+          <div class="gem-national-emblem small">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0B2545" stroke-width="2">
+              <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z"/>
+              <path d="M12 6v12M8 10h8M9 14h6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="gem-main-title">GeM <span class="gem-portal-badge" id="headerPortalBadge">Buyer Console</span></div>
+            <div class="gem-main-sub">Government e-Marketplace · Bid Compliance Verification System</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gem-header-right">
+        <div class="topbar-search-wrap" style="position:relative">
+          <div class="topbar-search">
+            <i data-icon="search"></i>
+            <input type="text" id="global-search" placeholder="Search Bid No, Company, GSTIN, PAN, Clause…" autocomplete="off">
+          </div>
+          <div id="global-search-results" class="search-dropdown hidden"></div>
+        </div>
+
+        <div class="gem-header-user">
+          <div class="avatar" id="topbar-avatar">PS</div>
+          <div class="gem-user-meta">
+            <div class="gem-user-name" id="topbar-user-name">Smt. Priya Sharma</div>
+            <div class="gem-user-role" id="topbar-user-role">Procurement Officer (DHS)</div>
+          </div>
+          <button class="btn btn-outline btn-xs" id="logout-btn-top" onclick="logoutSession()">
+            <i data-icon="switch" data-size="12"></i> Log Out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Horizontal Navbar -->
+    <nav class="gem-main-nav" id="main-nav-bar">
+      <!-- Injected dynamically based on role (Officer vs Seller) -->
+    </nav>
+  </header>
+
+  <!-- Main View Workspace -->
+  <main class="gem-workspace" id="view-area">
+    <!-- Views injected dynamically -->
+  </main>
+
+  <!-- Official Footer -->
+  <footer class="gem-footer">
+    <div class="gem-footer-inner">
+      <div class="gem-footer-links">
+        <a href="javascript:void(0)" onclick="openGeMRules()">Terms of Use</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="openGeMRules()">Privacy Policy</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="openGeMRules()">Public Procurement (Preference to Make in India) Order</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="openGeMRules()">MSE Procurement Policy</a>
+        <span>|</span>
+        <a href="javascript:void(0)" onclick="toast('GeM Helpdesk Toll Free: 1800-419-3436')">Contact GeM Helpdesk</a>
+      </div>
+      <div class="gem-footer-copy">
+        © 2026 Government e-Marketplace (GeM) · Ministry of Commerce &amp; Industry, Government of India. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<!-- 1. Split-Screen OCR Evidence & Bounding Box Modal -->
+<div id="evidenceModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:980px">
+    <div class="modal-head">
+      <div class="modal-title" id="evidenceModalTitle">
+        <i data-icon="scan"></i> Document Ground Truth &amp; OCR Inspection
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('evidenceModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="evidenceModalBody">
+      <!-- Injected -->
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('evidenceModal')">Close Inspector</button>
+      <button class="btn btn-accent" id="evidenceVerifyBtn" onclick="toast('Ground truth confirmed against live registry')"><i data-icon="check"></i> Confirm Document Match</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Digital Bidder Trust Passport Modal -->
+<div id="trustPassportModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:850px">
+    <div class="modal-head">
+      <div class="modal-title">
+        <i data-icon="passport"></i> Digital Bidder Trust Passport
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('trustPassportModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="trustPassportModalBody">
+      <!-- Injected -->
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('trustPassportModal')">Close</button>
+      <button class="btn btn-primary" onclick="window.print()"><i data-icon="printer"></i> Print Passport Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Live Government API Payload Inspector Modal -->
+<div id="apiInspectorModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:760px">
+    <div class="modal-head">
+      <div class="modal-title">
+        <i data-icon="code"></i> Government Registry API Sandbox (Mode 2)
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('apiInspectorModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="apiInspectorModalBody">
+      <!-- Injected -->
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('apiInspectorModal')">Close</button>
+      <button class="btn btn-primary" onclick="toast('API Payload copied to clipboard')"><i data-icon="copy"></i> Copy JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Printable GeM Compliance Certificate Modal -->
+<div id="printCertificateModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:880px">
+    <div class="modal-head">
+      <div class="modal-title">
+        <i data-icon="printer"></i> Official GeM Bid Compliance Certificate
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('printCertificateModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="printCertificateModalBody" style="background:#EEF2F6">
+      <!-- Injected -->
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('printCertificateModal')">Close</button>
+      <button class="btn btn-accent" onclick="window.print()"><i data-icon="printer"></i> Print / Save as Official PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Upload Custom Bid Package Wizard Modal -->
+<div id="uploadBidModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:680px">
+    <div class="modal-head">
+      <div class="modal-title">
+        <i data-icon="upload"></i> Upload &amp; Verify Bid Package
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('uploadBidModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="uploadBidModalBody">
+      <div style="font-size:13px;color:var(--text-600);margin-bottom:16px">
+        Upload technical bid documents (PDF/ZIP) or test with preset bidder packages against active GeM tenders.
+      </div>
+      <div class="stack" style="gap:14px">
+        <label class="field">
+          <span>Select Target GeM Tender</span>
+          <select id="uploadTargetTender">
+            <option value="GEM/2026/B/4471829">GEM/2026/B/4471829 — Advanced Life Support Ambulances (₹18.5 Cr)</option>
+            <option value="GEM/2026/B/4492013">GEM/2026/B/4492013 — Ruggedized Laptops (₹8.4 Cr)</option>
+            <option value="GEM/2026/B/4501177">GEM/2026/B/4501177 — Solar Street Lighting AMC (₹3.2 Cr)</option>
+            <option value="GEM/2026/B/4488654">GEM/2026/B/4488654 — Steel Almirahs &amp; Modular Storage (₹2.1 Cr)</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Preset Test Scenarios</span>
+          <select id="uploadPresetSelect" onchange="applyUploadPreset(this.value)">
+            <option value="custom">-- Custom Bidder Submission --</option>
+            <option value="compliant">Scenario 1: Fully Compliant Bidder (Low Risk, All Matches)</option>
+            <option value="minor_issue">Scenario 2: Minor Issue Bidder (Pending Udyam, Review)</option>
+            <option value="non_compliant">Scenario 3: Non-Compliant / Debarred Bidder (High Risk, Mismatch)</option>
+          </select>
+        </label>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label class="field">
+            <span>Bidder Entity Legal Name</span>
+            <input type="text" id="uploadCompanyName" value="Apex Health Logistics India Pvt Ltd">
+          </label>
+          <label class="field">
+            <span>GSTIN Number</span>
+            <input type="text" id="uploadGSTIN" value="33AAPCA9921K1Z2">
+          </label>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label class="field">
+            <span>Permanent Account Number (PAN)</span>
+            <input type="text" id="uploadPAN" value="AAPCA9921K">
+          </label>
+          <label class="field">
+            <span>Udyam Registration Number</span>
+            <input type="text" id="uploadUdyam" value="UDYAM-TN-02-0019284">
+          </label>
+        </div>
+
+        <div style="border:2px dashed var(--border);border-radius:var(--radius-md);padding:24px;text-align:center;background:var(--bg);cursor:pointer" onclick="toast('Documents attached to verification batch')">
+          <i data-icon="upload" data-size="28" style="color:var(--indigo-600);margin-bottom:6px"></i>
+          <div style="font-size:13.5px;font-weight:700">Drop Bid Documents (PDF/ZIP) or Click to Upload</div>
+          <div style="font-size:11.5px;color:var(--text-400);margin-top:4px">Includes: GST REG-06, PAN Card, Udyam MSME, ITR-V, OEM MAF, Audited Financials</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot" id="uploadBidModalFoot">
+      <button class="btn btn-outline" onclick="closeModal('uploadBidModal')">Cancel</button>
+      <button class="btn btn-accent" onclick="runCustomBidSimulation()"><i data-icon="sparkle"></i> Run AI Compliance Verification</button>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Side-by-Side Comparison Modal -->
+<div id="compareModal" class="modal-backdrop">
+  <div class="modal-card" style="max-width:1050px">
+    <div class="modal-head">
+      <div class="modal-title">
+        <i data-icon="layers"></i> Side-by-Side Tender Bidder Comparison Matrix
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('compareModal')"><i data-icon="close"></i></button>
+    </div>
+    <div class="modal-body" id="compareModalBody">
+      <!-- Injected -->
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('compareModal')">Close</button>
+      <button class="btn btn-primary" onclick="toast('Comparison exported as CSV')"><i data-icon="download"></i> Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="data.js"></script>
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

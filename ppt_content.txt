@@ -1,0 +1,327 @@
+Total slides: 6
+=== SLIDE 1 ===
+SMART INDIA HACKATHON 2026
+Problem Statement ID - 26100
+Problem Statement Title  - 
+AI-Powered Integrated Bid Compliance Verification Platform for 
+GeM
+ Procurement
+Theme - 
+Smart Automation
+PS Category -  Software
+Team ID  - 
+Team Name - 
+BidNova
+
+
+=== SLIDE 2 ===
+BIDVERIFY
+(AI-Powered Compliance for Smarter 
+GeM
+ Procurement)
+2
+@BN - 
+BidNova
+Time-Consuming Verification
+: 
+Why spend hours checking every bidder document?
+Multiple Portal Hassle
+: 
+How can bidder details be verified across different portals?
+Hidden Compliance Risks
+: 
+What if a missing or mismatched document goes unnoticed?
+PROBLEM EXISTING
+PROPOSED SOLUTION
+UVP (UNIQUE VALUE PROPOSITION)
+➢
+Tender-to-Trust Intelligence
+ : 
+Converts every tender and bidder submission into a 
+single AI-powered compliance profile
+ for faster evaluation.
+➢
+Clause-to-Proof Mapping : 
+Automatically links 
+tender requirements → bidder documents → verification evidence
+, eliminating repetitive checking.
+➢
+Digital Bidder Trust Passport : 
+Creates a 
+reusable compliance identity
+ with verified credentials, risk indicators and verification history.
+➢
+Predictive Compliance & Risk : 
+Detects 
+hidden gaps, inconsistencies and potential risks
+ before the procurement decision.
+➢
+AI-Powered Bid Verification
+ : 
+Automatically analyses tender requirements and bidder documents for compliance.
+➢
+Smart Cross-Portal Validation
+ : 
+Verifies GST, PAN, Udyam and other credentials through a unified platform.
+➢
+Real-Time Compliance Score
+ : 
+Instantly identifies missing, mismatched and risky requirements with clear status.
+➢
+Explainable AI Recommendation
+ : 
+Provides evidence-based compliance insights while keeping the final decision with the officer.
+
+
+=== SLIDE 3 ===
+Start Here
+▶
+Upload Tender +
+Bidder Documents
+▶
+ AI Document Processing
+OCR + LLM + RAG
+Tender clauses
+Eligibility criteria
+Bidder details
+Required documents
+▼
+▼
+  What Needs to be Verified?
+▼
+▼
+▼
+                                         Mode 1
+
+DOCUMENT VERIFICATION
+Upload Bidder Documents
+▼
+OCR + AI Extraction
+▼
+Extract GST / PAN / Udyam /
+Certificates
+▼
+Validate Information
+▼
+  Document Status
+✓ Valid
+⚠ Missing
+✗ Mismatch
+                                           Mode 2
+
+PORTAL CROSS-VERIFICATION
+Extract Bidder Details
+▼
+Query Authorized
+Government Source
+▼
+Retrieve Official Data
+▼
+Cross-Check with Documents
+▼
+Generate Verification Evidence
+▼
+GST | PAN | Udyam | MCA | EPFO/ESIC
+(Authorized Government APIs)
+                                            Mode 3
+
+AI COMPLIANCE ASSESSMENT
+Tender + Bidder Data
+▼
+Apply Tender Rules
+▼
+Detect Compliance Gaps
+▼
+Generate Compliance Score
+▼
+Risk Level + AI Recommendation
+▼
+ Final Decision →
+Procurement Officer
+🗄️  TECH STACK
+⚛️
+React.js
+(Frontend)
+⚡
+FastAPI
+(Backend)
+🐘
+PostgreSQL
+(Database)
+📄
+OCR
+(Document Processing)
+🧠
+LLM + RAG + ML
+(AI)
+🔒
+JWT + RBAC +
+Encryption
+(Security)
+🏛️
+Authorized
+Government APIs
+(Integration)
+▶
+OUTPUT
+✅
+Compliance Score + Risk Level + Pending Requirements + Verification Evidence
+     TECHNICAL APPROACH      
+
+
+=== SLIDE 4 ===
+FEASIBILITY AND VIABILITY
+4
+@BN - 
+BidNova
+FEASIBILITY:
+Technical:
+ Uses proven technologies — React, 
+FastAPI
+, PostgreSQL, OCR, LLM, RAG & ML.
+AI:
+ Reads tender documents, extracts requirements and matches them with submitted documents.
+Integration:
+ Uses authorised government APIs where available; mock APIs for the prototype.
+Security:
+ JWT, role-based access, encryption and audit logs protect procurement data.
+Human Oversight:
+ AI assists with verification; 
+final decisions stay with the Procurement Officer.
+VIABILITY:
+Operational:
+ Reduces manual document checking and saves time.
+Economic:
+ Cuts repetitive work and improves evaluation efficiency.
+Scalable:
+ Can support new departments, tender types and compliance checks.
+Standardised:
+ Provides one consistent verification process.
+Auditable:
+ Stores evidence, sources and verification history.
+TECHNICAL CHALLENGES & MITIGATION:
+1.Government API Availability
+Risk :
+ Some government sources may not provide a usable public API.
+Mitigation :
+ Use official/authorised integrations where possible and 
+mock APIs during the prototype
+.
+2.Poor-Quality Documents
+Risk :
+ Blurry or scanned documents can cause OCR mistakes.
+Mitigation :
+ Use 
+image preprocessing, OCR confidence checks and human verification
+.
+3.Company Name Confusion
+Risk :
+ Two companies may have similar names, which can lead to incorrect matching.
+Mitigation :
+ Verify using 
+GSTIN, PAN, CIN and other unique identifiers
+.
+4.Changing Tender Requirements
+Risk :
+ Requirements can differ from one tender to another.
+Mitigation :
+ Extract requirements dynamically and keep the 
+compliance rules configurable
+.
+
+
+=== SLIDE 5 ===
+IMPACT AND BENEFITS
+Procurement Efficiency:
+ Automated verification of bidder documents and government records can significantly reduce repetitive manual verification effort and speed up tender evaluation.
+• Improved Compliance & Accuracy:
+ AI-based extraction and cross-verification help identify missing documents, data mismatches and potential compliance issues, reducing human errors and inconsistencies.
+• Transparency & Governance:
+ Evidence-based verification, compliance scores and complete audit trails provide procurement officers with a transparent and traceable basis for review.
+• Better Risk Identification:
+ Early detection of discrepancies, missing requirements and potential blacklisting/debarment issues enables faster and more informed scrutiny of bidders.
+5
+@BN - 
+BidNova
+HOW OUR PLATFORM WORKS
+MODE 1: DOCUMENT VERIFICATION
+MODE 2: PORTAL CROSS-VERIFICATION
+MODE 3: AI COMPLIANCE ASSESSMENT
+For:
+ Bidder documents submitted through the platform
+Process:
+Upload Documents → AI/OCR Extraction → Information Validation → Document Status
+Time:
+ Seconds–Minutes*
+Best For:
+ GST, PAN, Udyam, OEM authorization, certificates and declarations
+For:
+ Information that needs verification against authorized government sources
+Process:
+Extract Bidder Details → Query Authorized Source → Retrieve Data → Cross-Check → Generate Evidence
+Time:
+ Minutes*
+Best For:
+ GST, Udyam/MSME, PAN/IT, MCA, EPFO/ESIC, Startup India, NSIC and other applicable sources
+For:
+ Complete tender-level eligibility assessment
+Process:
+Portal + Documents → Apply Tender Rules → Detect Gaps → Compliance Score → Risk Level → AI Recommendation
+Output:
+Compliance Score + Risk Level + Pending Requirements + Evidence
+Best For:
+ Final procurement officer review and decision support
+
+
+=== SLIDE 6 ===
+RESEARCH  AND REFERENCES
+6
+@BN - 
+BidNova
+➢ 
+GeM
+ : Government e-Marketplace is India’s national public procurement platform for transparent and efficient government procurement.
+Full Details :
+GeM
+ Handbook
+➢ 
+AI in Procurement
+ : Research shows that AI can support supplier evaluation, compliance screening and risk assessment while keeping humans   
+      involved in final decisions.
+Links :
+Scientific Reports
+➢ 
+Transparent Procurement
+ : Government procurement guidelines emphasize consistency, clarity, openness and transparency during bidder evaluation.
+Links :
+Department of Expenditure
+ / 
+GePNIC
+SOLUTIONS ALREADY EXIST
+Most platforms focus on tender discovery, not complete bidder compliance verification.
+AVAILABLE PLATFORMS :
+GeM
+ AI 
+/ 
+GemSetu
+ / 
+Bid India
+ / 
+GemEdge
+OUR SOLUTION STANDS OUT
+One-Click
+ : Easy compliance verification 
+Tender-Aware
+ : Checks tender requirements 
+Risk Score
+ : Identifies compliance risks 
+Safe & Verified
+ : Evidence-based verification
+PROJECT RESOURCES
+Prototype link: 
+Prototype
+Ai model link: 
+AI_Model
+Dataset link : 
+Dataset Link
+

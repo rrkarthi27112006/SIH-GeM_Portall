@@ -1,0 +1,1107 @@
+from google.colab import files
+
+uploaded = files.upload()
+
+import pandas as pd
+import numpy as np
+
+# Load dataset
+df = pd.read_csv("bidverify_dataset_200000 (1).csv")
+
+print("Dataset Shape:", df.shape)
+print("\nColumns:")
+print(df.columns.tolist())
+
+print("\nFirst 5 rows:")
+display(df.head())
+
+# Basic information
+print("Dataset Info:")
+df.info()
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+print("\nDuplicate Rows:", df.duplicated().sum())
+
+print("\nTarget Distribution:")
+print(df["final_label"].value_counts())
+
+print("\nTarget Percentage:")
+print(df["final_label"].value_counts(normalize=True) * 100)
+
+# Features and target
+
+drop_cols = [
+    "bid_id",
+    "bidder_name",
+    "gstin",
+    "pan_number",
+    "udyam_number",
+    "final_label"
+]
+
+X = df.drop(columns=drop_cols)
+y = df["final_label"]
+
+print("Features:")
+print(X.columns.tolist())
+
+print("\nFeature Shape:", X.shape)
+print("Target Shape:", y.shape)
+
+# Cell 4: Feature Encoding
+
+# Boolean columns -> 0/1
+bool_cols = X.select_dtypes(include="bool").columns
+
+for col in bool_cols:
+    X[col] = X[col].astype(int)
+
+# Categorical columns
+cat_cols = X.select_dtypes(include="object").columns.tolist()
+
+print("Categorical Columns:", cat_cols)
+print("Boolean Columns:", bool_cols.tolist())
+
+# One-hot encoding
+X_encoded = pd.get_dummies(
+    X,
+    columns=cat_cols,
+    dummy_na=True
+)
+
+print("\nEncoded Feature Shape:", X_encoded.shape)
+print("\nData Types:")
+print(X_encoded.dtypes.value_counts())
+
+# Cell 5: Train-Test Split
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_encoded,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("Training Data Shape:", X_train.shape)
+print("Testing Data Shape:", X_test.shape)
+
+print("\nTraining Target Distribution:")
+print(y_train.value_counts())
+
+print("\nTesting Target Distribution:")
+print(y_test.value_counts())
+
+# Cell 6: Train Random Forest Model
+
+from sklearn.ensemble import RandomForestClassifier
+
+rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+)
+
+print("Training Random Forest...")
+
+rf_model.fit(X_train, y_train)
+
+print("Model Training Completed!")
+
+# Cell 7: Model Evaluation
+
+from sklearn.metrics import accuracy_score, classification_report
+
+# Predict on test data
+y_pred = rf_model.predict(X_test)
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("Random Forest Accuracy:", round(accuracy * 100, 2), "%")
+
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+# Cell 8: Confusion Matrix
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(7, 5))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    xticklabels=rf_model.classes_,
+    yticklabels=rf_model.classes_
+)
+
+plt.xlabel("Predicted Label")
+plt.ylabel("Actual Label")
+plt.title("Confusion Matrix - Random Forest")
+plt.show()
+
+# Cell 9: Remove Potential Target Leakage
+
+leakage_cols = [
+    "compliance_score",
+    "risk_level"
+]
+
+X_clean = X.drop(columns=leakage_cols)
+
+print("Removed Columns:", leakage_cols)
+print("\nRemaining Features:")
+print(X_clean.columns.tolist())
+print("\nFeature Shape:", X_clean.shape)
+
+# Cell 10: Encode Clean Features
+
+# Convert boolean columns to integers
+bool_cols_clean = X_clean.select_dtypes(include="bool").columns
+
+for col in bool_cols_clean:
+    X_clean[col] = X_clean[col].astype(int)
+
+# Find categorical columns
+cat_cols_clean = X_clean.select_dtypes(include="object").columns.tolist()
+
+print("Categorical Columns:", cat_cols_clean)
+print("Boolean Columns:", bool_cols_clean.tolist())
+
+# One-hot encoding
+X_clean_encoded = pd.get_dummies(
+    X_clean,
+    columns=cat_cols_clean,
+    dummy_na=True
+)
+
+print("\nEncoded Feature Shape:", X_clean_encoded.shape)
+
+# Cell 11: Train-Test Split for Clean Model
+
+from sklearn.model_selection import train_test_split
+
+X_train_clean, X_test_clean, y_train_clean, y_test_clean = train_test_split(
+    X_clean_encoded,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("Clean Training Shape:", X_train_clean.shape)
+print("Clean Testing Shape:", X_test_clean.shape)
+
+print("\nTraining Target Distribution:")
+print(y_train_clean.value_counts())
+
+print("\nTesting Target Distribution:")
+print(y_test_clean.value_counts())
+
+# Cell 12: Train Clean Random Forest Model
+
+from sklearn.ensemble import RandomForestClassifier
+
+rf_clean = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+)
+
+print("Training Clean Random Forest...")
+
+rf_clean.fit(X_train_clean, y_train_clean)
+
+print("Clean Model Training Completed!")
+
+# Cell 13: Evaluate Clean Random Forest
+
+from sklearn.metrics import accuracy_score, classification_report
+
+# Predictions
+y_pred_clean = rf_clean.predict(X_test_clean)
+
+# Accuracy
+accuracy_clean = accuracy_score(y_test_clean, y_pred_clean)
+
+print("Clean Random Forest Accuracy:", round(accuracy_clean * 100, 2), "%")
+
+print("\nClassification Report:")
+print(classification_report(y_test_clean, y_pred_clean))
+
+# Cell 14: Confusion Matrix - Clean Model
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+cm_clean = confusion_matrix(y_test_clean, y_pred_clean)
+
+plt.figure(figsize=(7, 5))
+
+sns.heatmap(
+    cm_clean,
+    annot=True,
+    fmt="d",
+    xticklabels=rf_clean.classes_,
+    yticklabels=rf_clean.classes_
+)
+
+plt.xlabel("Predicted Label")
+plt.ylabel("Actual Label")
+plt.title("Confusion Matrix - Clean Random Forest")
+
+plt.show()
+
+# Cell 15: Feature Importance
+
+feature_importance = pd.DataFrame({
+    "Feature": X_train_clean.columns,
+    "Importance": rf_clean.feature_importances_
+})
+
+feature_importance = feature_importance.sort_values(
+    by="Importance",
+    ascending=False
+)
+
+print("Top 15 Important Features:")
+display(feature_importance.head(15))
+
+# Cell 16: Visualize Top 15 Important Features
+
+top_features = feature_importance.head(15).sort_values(
+    by="Importance"
+)
+
+plt.figure(figsize=(10, 7))
+
+plt.barh(
+    top_features["Feature"],
+    top_features["Importance"]
+)
+
+plt.xlabel("Importance")
+plt.ylabel("Feature")
+plt.title("Top 15 Feature Importances - Clean Random Forest")
+plt.tight_layout()
+plt.show()
+
+# Cell 17: Save Clean Random Forest Model
+
+import joblib
+
+# Save model
+joblib.dump(rf_clean, "bid_compliance_random_forest.pkl")
+
+# Save feature names used during training
+joblib.dump(
+    X_train_clean.columns.tolist(),
+    "bid_compliance_features.pkl"
+)
+
+print("Model saved successfully!")
+print("File: bid_compliance_random_forest.pkl")
+print("Features saved: bid_compliance_features.pkl")
+
+# Cell 18: Predict Compliance for a New Bid
+
+new_bid = pd.DataFrame([{
+    "tender_category": "IT & Computers",
+    "tender_value_inr": 5000000,
+    "turnover_required_inr": 3000000,
+    "gstin_valid": True,
+    "pan_valid": True,
+    "udyam_present": True,
+    "udyam_valid": True,
+    "document_type_flagged": "None",
+    "document_status": "Verified",
+    "mismatch_type": "None"
+}])
+
+# Convert boolean columns to integers
+for col in new_bid.select_dtypes(include="bool").columns:
+    new_bid[col] = new_bid[col].astype(int)
+
+# Apply same encoding used during training
+new_bid_encoded = pd.get_dummies(
+    new_bid,
+    columns=cat_cols_clean,
+    dummy_na=True
+)
+
+# Match training feature columns exactly
+new_bid_encoded = new_bid_encoded.reindex(
+    columns=X_train_clean.columns,
+    fill_value=0
+)
+
+# Prediction
+prediction = rf_clean.predict(new_bid_encoded)[0]
+probabilities = rf_clean.predict_proba(new_bid_encoded)[0]
+
+print("Predicted Compliance Status:", prediction)
+
+print("\nPrediction Probabilities:")
+for label, probability in zip(rf_clean.classes_, probabilities):
+    print(f"{label}: {probability * 100:.2f}%")
+
+# Cell 19: Compliance Decision Output
+
+predicted_status = prediction
+confidence = probabilities.max() * 100
+
+# Map model prediction to risk level
+risk_mapping = {
+    "compliant": "Low",
+    "minor_issue": "Medium",
+    "non_compliant": "High"
+}
+
+recommendation_mapping = {
+    "compliant": "Bidder appears compliant. Proceed with verification approval.",
+    "minor_issue": "Minor compliance issues detected. Review pending requirements before approval.",
+    "non_compliant": "Major compliance issues detected. Manual review/rejection recommended."
+}
+
+risk = risk_mapping[predicted_status]
+recommendation = recommendation_mapping[predicted_status]
+
+print("=" * 55)
+print("        AI BID COMPLIANCE ASSESSMENT")
+print("=" * 55)
+
+print(f"Compliance Status : {predicted_status}")
+print(f"Confidence        : {confidence:.2f}%")
+print(f"Risk Level        : {risk}")
+print(f"Recommendation    : {recommendation}")
+
+print("=" * 55)
+
+# Cell 20: Final Model Performance Summary
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+accuracy = accuracy_score(y_test_clean, y_pred_clean)
+precision = precision_score(
+    y_test_clean,
+    y_pred_clean,
+    average="weighted"
+)
+recall = recall_score(
+    y_test_clean,
+    y_pred_clean,
+    average="weighted"
+)
+f1 = f1_score(
+    y_test_clean,
+    y_pred_clean,
+    average="weighted"
+)
+
+print("=" * 50)
+print("       FINAL MODEL PERFORMANCE")
+print("=" * 50)
+
+print(f"Model              : Random Forest")
+print(f"Training Samples   : {len(X_train_clean):,}")
+print(f"Testing Samples    : {len(X_test_clean):,}")
+print(f"Input Features     : {X_train_clean.shape[1]}")
+
+print(f"\nAccuracy            : {accuracy * 100:.2f}%")
+print(f"Weighted Precision  : {precision * 100:.2f}%")
+print(f"Weighted Recall     : {recall * 100:.2f}%")
+print(f"Weighted F1-Score  : {f1 * 100:.2f}%")
+
+print("=" * 50)
+
+# Cell 21: Sample 2 - Non-Compliant Bidder
+
+new_bid = pd.DataFrame([{
+    "tender_category": "Construction",
+    "tender_value_inr": 10000000,
+    "turnover_required_inr": 8000000,
+    "gstin_valid": False,
+    "pan_valid": False,
+    "udyam_present": False,
+    "udyam_valid": False,
+    "document_type_flagged": "Invalid",
+    "document_status": "Rejected",
+    "mismatch_type": "GSTIN-PAN mismatch"
+}])
+
+# Convert boolean columns to integers
+for col in new_bid.select_dtypes(include="bool").columns:
+    new_bid[col] = new_bid[col].astype(int)
+
+# Same encoding as training
+new_bid_encoded = pd.get_dummies(
+    new_bid,
+    columns=cat_cols_clean,
+    dummy_na=True
+)
+
+# Match training columns
+new_bid_encoded = new_bid_encoded.reindex(
+    columns=X_train_clean.columns,
+    fill_value=0
+)
+
+# Predict
+prediction = rf_clean.predict(new_bid_encoded)[0]
+probabilities = rf_clean.predict_proba(new_bid_encoded)[0]
+
+risk_mapping = {
+    "compliant": "Low",
+    "minor_issue": "Medium",
+    "non_compliant": "High"
+}
+
+print("=" * 55)
+print("        AI BID COMPLIANCE ASSESSMENT")
+print("=" * 55)
+
+print(f"Compliance Status : {prediction}")
+print(f"Confidence        : {probabilities.max() * 100:.2f}%")
+print(f"Risk Level        : {risk_mapping[prediction]}")
+
+print("\nPrediction Probabilities:")
+for label, probability in zip(rf_clean.classes_, probabilities):
+    print(f"{label}: {probability * 100:.2f}%")
+
+print("=" * 55)
+
+# Cell 22: Test 3 Sample Bidders
+
+demo_bids = pd.DataFrame([
+    {
+        "Case": "Compliant Bidder",
+        "tender_category": "IT & Computers",
+        "tender_value_inr": 5000000,
+        "turnover_required_inr": 3000000,
+        "gstin_valid": True,
+        "pan_valid": True,
+        "udyam_present": True,
+        "udyam_valid": True,
+        "document_type_flagged": "None",
+        "document_status": "Verified",
+        "mismatch_type": "None"
+    },
+    {
+        "Case": "Minor Issue Bidder",
+        "tender_category": "Office Supplies",
+        "tender_value_inr": 3000000,
+        "turnover_required_inr": 2000000,
+        "gstin_valid": True,
+        "pan_valid": True,
+        "udyam_present": True,
+        "udyam_valid": False,
+        "document_type_flagged": "Address Proof",
+        "document_status": "Pending",
+        "mismatch_type": "None"
+    },
+    {
+        "Case": "Non-Compliant Bidder",
+        "tender_category": "Construction",
+        "tender_value_inr": 10000000,
+        "turnover_required_inr": 8000000,
+        "gstin_valid": False,
+        "pan_valid": False,
+        "udyam_present": False,
+        "udyam_valid": False,
+        "document_type_flagged": "Invalid",
+        "document_status": "Rejected",
+        "mismatch_type": "GSTIN-PAN mismatch"
+    }
+])
+
+results = []
+
+for _, bid in demo_bids.iterrows():
+
+    case_name = bid["Case"]
+
+    # Remove Case column before prediction
+    input_data = bid.drop("Case").to_frame().T
+
+    # Boolean -> integer
+    for col in input_data.select_dtypes(include="bool").columns:
+        input_data[col] = input_data[col].astype(int)
+
+    # One-hot encoding
+    input_encoded = pd.get_dummies(
+        input_data,
+        columns=cat_cols_clean,
+        dummy_na=True
+    )
+
+    # Match training features
+    input_encoded = input_encoded.reindex(
+        columns=X_train_clean.columns,
+        fill_value=0
+    )
+
+    # Prediction
+    pred = rf_clean.predict(input_encoded)[0]
+    prob = rf_clean.predict_proba(input_encoded)[0]
+    confidence = prob.max() * 100
+
+    risk = risk_mapping[pred]
+
+    results.append({
+        "Demo Case": case_name,
+        "Predicted Status": pred,
+        "Risk Level": risk,
+        "Confidence": f"{confidence:.2f}%"
+    })
+
+demo_results = pd.DataFrame(results)
+
+print("=" * 75)
+print("             AI BID COMPLIANCE DEMO")
+print("=" * 75)
+
+display(demo_results)
+
+# Cell 23: Create Mock External Verification Portal
+
+from bs4 import BeautifulSoup
+
+mock_portal = """
+<html>
+<head>
+    <title>Government Bidder Verification Portal</title>
+</head>
+<body>
+
+<h1>Bidder Verification Records</h1>
+
+<table id="bidder_table" border="1">
+
+<tr>
+    <th>Bidder Name</th>
+    <th>GSTIN</th>
+    <th>PAN</th>
+    <th>Udyam Status</th>
+    <th>Verification Status</th>
+</tr>
+
+<tr>
+    <td>ABC Technologies Pvt Ltd</td>
+    <td>VALID</td>
+    <td>VALID</td>
+    <td>VALID</td>
+    <td>VERIFIED</td>
+</tr>
+
+<tr>
+    <td>XYZ Construction Ltd</td>
+    <td>INVALID</td>
+    <td>INVALID</td>
+    <td>NOT FOUND</td>
+    <td>REJECTED</td>
+</tr>
+
+<tr>
+    <td>Global Office Solutions</td>
+    <td>VALID</td>
+    <td>VALID</td>
+    <td>PENDING</td>
+    <td>REVIEW</td>
+</tr>
+
+</table>
+
+</body>
+</html>
+"""
+
+# Parse HTML
+soup = BeautifulSoup(mock_portal, "html.parser")
+
+print("Mock External Portal Created Successfully!")
+print("Portal Title:", soup.title.text)
+
+# Cell 24: Scrape Bidder Information from External Portal
+
+# Find the bidder table
+table = soup.find("table", id="bidder_table")
+
+# Extract table headers
+headers = [
+    header.text.strip()
+    for header in table.find_all("th")
+]
+
+# Extract rows
+scraped_data = []
+
+for row in table.find_all("tr")[1:]:
+    cells = [
+        cell.text.strip()
+        for cell in row.find_all("td")
+    ]
+
+    if cells:
+        scraped_data.append(cells)
+
+# Convert scraped data into DataFrame
+scraped_df = pd.DataFrame(
+    scraped_data,
+    columns=headers
+)
+
+print("Web Scraping Completed Successfully!\n")
+
+display(scraped_df)
+
+# Cell 25: Cross-Verify Scraped Bidder Data
+
+def verify_bidder(row):
+    issues = []
+
+    if row["GSTIN"] != "VALID":
+        issues.append("GSTIN issue")
+
+    if row["PAN"] != "VALID":
+        issues.append("PAN issue")
+
+    if row["Udyam Status"] != "VALID":
+        issues.append("Udyam issue")
+
+    if row["Verification Status"] != "VERIFIED":
+        issues.append("Portal verification issue")
+
+    if len(issues) == 0:
+        result = "MATCHED"
+    else:
+        result = "MISMATCH"
+
+    return pd.Series({
+        "Cross_Verification": result,
+        "Issues_Detected": ", ".join(issues) if issues else "None"
+    })
+
+
+verification_results = scraped_df.apply(
+    verify_bidder,
+    axis=1
+)
+
+final_verification = pd.concat(
+    [scraped_df, verification_results],
+    axis=1
+)
+
+print("Cross-Verification Completed!\n")
+
+display(final_verification)
+
+# Cell 26: Generate Compliance Decision from Web Verification
+
+def generate_compliance(row):
+
+    if row["Cross_Verification"] == "MATCHED":
+        status = "compliant"
+        risk = "Low"
+        recommendation = "All external verification details matched."
+
+    elif "GSTIN issue" in row["Issues_Detected"] and \
+         "PAN issue" in row["Issues_Detected"]:
+        status = "non_compliant"
+        risk = "High"
+        recommendation = "Critical identity verification mismatch detected."
+
+    else:
+        status = "minor_issue"
+        risk = "Medium"
+        recommendation = "Manual review required for detected verification issues."
+
+    return pd.Series({
+        "Compliance_Status": status,
+        "Risk_Level": risk,
+        "Recommendation": recommendation
+    })
+
+
+compliance_results = final_verification.apply(
+    generate_compliance,
+    axis=1
+)
+
+web_compliance_results = pd.concat(
+    [final_verification, compliance_results],
+    axis=1
+)
+
+print("=" * 80)
+print("        WEB-SCRAPING BASED BID COMPLIANCE ASSESSMENT")
+print("=" * 80)
+
+display(
+    web_compliance_results[
+        [
+            "Bidder Name",
+            "Cross_Verification",
+            "Issues_Detected",
+            "Compliance_Status",
+            "Risk_Level",
+            "Recommendation"
+        ]
+    ]
+)
+
+# Cell 27: Integrate Web Verification with ML Model
+
+def predict_from_web_verification(row):
+
+    # Convert scraped verification into model features
+    gstin_valid = row["GSTIN"] == "VALID"
+    pan_valid = row["PAN"] == "VALID"
+    udyam_present = row["Udyam Status"] != "NOT FOUND"
+    udyam_valid = row["Udyam Status"] == "VALID"
+
+    # Create model input
+    model_input = pd.DataFrame([{
+        "tender_category": "IT & Computers",
+        "tender_value_inr": 5000000,
+        "turnover_required_inr": 3000000,
+        "gstin_valid": gstin_valid,
+        "pan_valid": pan_valid,
+        "udyam_present": udyam_present,
+        "udyam_valid": udyam_valid,
+        "document_type_flagged": "None",
+        "document_status": row["Verification Status"],
+        "mismatch_type": (
+            "Verification mismatch"
+            if row["Cross_Verification"] == "MISMATCH"
+            else "None"
+        )
+    }])
+
+    # Boolean → integer
+    for col in model_input.select_dtypes(include="bool").columns:
+        model_input[col] = model_input[col].astype(int)
+
+    # One-hot encoding
+    model_input = pd.get_dummies(
+        model_input,
+        columns=cat_cols_clean,
+        dummy_na=True
+    )
+
+    # Match training features
+    model_input = model_input.reindex(
+        columns=X_train_clean.columns,
+        fill_value=0
+    )
+
+    # ML prediction
+    prediction = rf_clean.predict(model_input)[0]
+
+    return prediction
+
+
+# Apply ML model to scraped verification results
+web_compliance_results["ML_Prediction"] = (
+    web_compliance_results.apply(
+        predict_from_web_verification,
+        axis=1
+    )
+)
+
+print("=" * 75)
+print("       FINAL AI BID COMPLIANCE VERIFICATION")
+print("=" * 75)
+
+display(
+    web_compliance_results[
+        [
+            "Bidder Name",
+            "Cross_Verification",
+            "Compliance_Status",
+            "Risk_Level",
+            "ML_Prediction"
+        ]
+    ]
+)
+
+# Cell 28: Final Verification Dashboard
+
+dashboard = web_compliance_results[
+    [
+        "Bidder Name",
+        "Cross_Verification",
+        "Issues_Detected",
+        "Compliance_Status",
+        "Risk_Level",
+        "ML_Prediction"
+    ]
+].copy()
+
+# Rename columns for presentation
+dashboard.columns = [
+    "Bidder",
+    "Portal Verification",
+    "Detected Issues",
+    "Rule-Based Status",
+    "Risk",
+    "AI Prediction"
+]
+
+print("=" * 100)
+print("                 AI-POWERED BID COMPLIANCE DASHBOARD")
+print("=" * 100)
+
+display(dashboard)
+
+print("\nSystem Flow:")
+print("Web Scraping → Cross Verification → Mismatch Detection → ML Prediction → Risk Assessment")
+
+# Cell 29: Create Mock Bidder Verification API
+
+!pip -q install fastapi uvicorn nest_asyncio
+
+from fastapi import FastAPI
+import nest_asyncio
+import uvicorn
+
+nest_asyncio.apply()
+
+app = FastAPI(
+    title="Bidder Verification API",
+    description="Mock API for GeM Bid Compliance Verification",
+    version="1.0"
+)
+
+verification_db = {
+    "ABC Technologies Pvt Ltd": {
+        "gstin": "VALID",
+        "pan": "VALID",
+        "udyam": "VALID",
+        "verification_status": "VERIFIED"
+    },
+
+    "XYZ Construction Ltd": {
+        "gstin": "INVALID",
+        "pan": "INVALID",
+        "udyam": "NOT FOUND",
+        "verification_status": "REJECTED"
+    },
+
+    "Global Office Solutions": {
+        "gstin": "VALID",
+        "pan": "VALID",
+        "udyam": "PENDING",
+        "verification_status": "REVIEW"
+    }
+}
+
+
+@app.get("/verify_bidder/{bidder_name}")
+def verify_bidder(bidder_name: str):
+
+    if bidder_name in verification_db:
+        return {
+            "bidder_name": bidder_name,
+            "verification": verification_db[bidder_name]
+        }
+
+    return {
+        "bidder_name": bidder_name,
+        "verification": "Bidder not found"
+    }
+
+
+print("FastAPI application created successfully!")
+print("Endpoint: /verify_bidder/{bidder_name}")
+
+# Cell 30: Start FastAPI Server
+
+import threading
+
+def run_api():
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000
+    )
+
+api_thread = threading.Thread(
+    target=run_api,
+    daemon=True
+)
+
+api_thread.start()
+
+print("FastAPI server started successfully!")
+print("Running on port 8000")
+
+import requests
+
+url = "http://127.0.0.1:8000/verify_bidder/ABC%20Technologies%20Pvt%20Ltd"
+
+response = requests.get(url)
+
+print("Status Code:", response.status_code)
+print("\nAPI Response:")
+print(response.json())
+
+import requests
+
+bidders = [
+    "ABC Technologies Pvt Ltd",
+    "XYZ Construction Ltd",
+    "Global Office Solutions"
+]
+
+for bidder in bidders:
+    url = f"http://127.0.0.1:8000/verify_bidder/{bidder}"
+    response = requests.get(url)
+
+    print("\nBidder:", bidder)
+    print("Status Code:", response.status_code)
+    print("API Response:", response.json())
+
+id="f8k2pz"
+import requests
+import pandas as pd
+
+def predict_from_api(bidder_name):
+
+    # 1. Call FastAPI
+    url = f"http://127.0.0.1:8000/verify_bidder/{bidder_name}"
+    response = requests.get(url)
+
+    data = response.json()
+
+    # 2. Extract verification data
+    verification = data["verification"]
+
+    # 3. Create ML input
+    model_input = pd.DataFrame([{
+        "tender_category": "IT & Computers",
+        "tender_value_inr": 5000000,
+        "turnover_required_inr": 3000000,
+        "gstin_valid": verification["gstin"] == "VALID",
+        "pan_valid": verification["pan"] == "VALID",
+        "udyam_present": verification["udyam"] != "NOT FOUND",
+        "udyam_valid": verification["udyam"] == "VALID",
+        "document_type_flagged": "None",
+        "document_status": verification["verification_status"],
+        "mismatch_type": (
+            "Verification mismatch"
+            if verification["verification_status"] != "VERIFIED"
+            else "None"
+        )
+    }])
+
+    # 4. Convert boolean values
+    for col in model_input.select_dtypes(include="bool").columns:
+        model_input[col] = model_input[col].astype(int)
+
+    # 5. Encode categorical features
+    model_input = pd.get_dummies(
+        model_input,
+        columns=cat_cols_clean,
+        dummy_na=True
+    )
+
+    # 6. Match training features
+    model_input = model_input.reindex(
+        columns=X_train_clean.columns,
+        fill_value=0
+    )
+
+    # 7. ML prediction
+    prediction = rf_clean.predict(model_input)[0]
+
+    probabilities = rf_clean.predict_proba(model_input)[0]
+    confidence = probabilities.max() * 100
+
+    return prediction, confidence
+
+for bidder in bidders:
+
+    prediction, confidence = predict_from_api(bidder)
+
+    print("\nBidder:", bidder)
+    print("ML Prediction:", prediction)
+    print("Confidence:", round(confidence, 2), "%")
+
+id="k7p4xq"
+results = []
+
+for bidder in bidders:
+
+    # Call API
+    url = f"http://127.0.0.1:8000/verify_bidder/{bidder}"
+    response = requests.get(url)
+    data = response.json()
+
+    verification = data["verification"]
+
+    # ML prediction
+    prediction, confidence = predict_from_api(bidder)
+
+    # Risk mapping
+    risk_mapping = {
+        "compliant": "Low",
+        "minor_issue": "Medium",
+        "non_compliant": "High"
+    }
+
+    results.append({
+        "Bidder": bidder,
+        "GSTIN": verification["gstin"],
+        "PAN": verification["pan"],
+        "Udyam": verification["udyam"],
+        "Portal Status": verification["verification_status"],
+        "ML Prediction": prediction,
+        "Confidence": round(confidence, 2),
+        "Risk Level": risk_mapping[prediction]
+    })
+
+final_dashboard = pd.DataFrame(results)
+
+display(final_dashboard)
+
+def final_decision(row):
+    if row["ML Prediction"] == "compliant":
+        recommendation = "Proceed with approval."
+    elif row["ML Prediction"] == "minor_issue":
+        recommendation = "Manual review required before approval."
+    else:
+        recommendation = "Critical compliance issues detected. Detailed review required."
+
+    return recommendation
+
+
+final_dashboard["Recommendation"] = final_dashboard.apply(
+    final_decision,
+    axis=1
+)
+
+display(final_dashboard)
+
+final_display = final_dashboard[
+    [
+        "Bidder",
+        "Portal Status",
+        "ML Prediction",
+        "Confidence",
+        "Risk Level",
+        "Recommendation"
+    ]
+].copy()
+
+display(final_display)
